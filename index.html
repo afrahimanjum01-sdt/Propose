@@ -119,7 +119,7 @@
 </head>
 <body>
 
-<h1 id="question">Will You Marry Me? 💖</h1>
+<h1 id="question">Will You Be My Penguin? 💖</h1>
 
 <button id="yesBtn">Yes 😊</button>
 <button id="noBtn">No 😢</button>
@@ -140,12 +140,148 @@
     const name = prompt("Enter your name 💌 (optional):");
     if (name && name.trim() !== "") {
         document.getElementById("question").innerHTML =
-            name + ", Will You Marry Me? 💖";
+            name + ", Will You Be My Penguin? 💖";
     }
 
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
     const message = document.getElementById("message");
+    const music = document.getElementById("bgMusic");
+
+    let animationRunning = false;
+    let heartInterval;
+    let animationFrame;
+    let particles = [];
+    let loveStarted = false;
+
+    // Move NO button (only if love not started)
+    function moveNoButton() {
+        if (loveStarted) return;
+        const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+        const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+        noBtn.style.left = x + "px";
+        noBtn.style.top = y + "px";
+    }
+
+    noBtn.addEventListener("mouseover", moveNoButton);
+    noBtn.addEventListener("touchstart", moveNoButton);
+
+    // YES hover
+    yesBtn.addEventListener("mouseover", () => {
+        yesBtn.innerHTML = "Yes 😄";
+        yesBtn.style.transform = "scale(1.1)";
+    });
+    yesBtn.addEventListener("mouseout", () => {
+        yesBtn.innerHTML = "Yes 😊";
+        yesBtn.style.transform = "scale(1)";
+    });
+
+    // Canvas setup
+    const canvas = document.getElementById("effects");
+    const ctx = canvas.getContext("2d");
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createExplosion() {
+        particles = [];
+        for (let i = 0; i < 200; i++) {
+            particles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                radius: Math.random() * 6 + 2,
+                color: `hsl(${Math.random() * 360},100%,50%)`,
+                speedX: (Math.random() - 0.5) * 10,
+                speedY: (Math.random() - 0.5) * 10
+            });
+        }
+    }
+
+    function animateExplosion() {
+        if (!animationRunning) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.x += p.speedX;
+            p.y += p.speedY;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+        });
+        animationFrame = requestAnimationFrame(animateExplosion);
+    }
+
+    function createHearts() {
+        heartInterval = setInterval(() => {
+            const heart = document.createElement("div");
+            heart.className = "heart";
+            heart.innerHTML = "💖";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = (Math.random() * 20 + 20) + "px";
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 4000);
+        }, 300);
+    }
+
+    function startLoveEffects() {
+        animationRunning = true;
+        createExplosion();
+        animateExplosion();
+        createHearts();
+    }
+
+    function stopLoveEffects() {
+        animationRunning = false;
+        cancelAnimationFrame(animationFrame);
+        clearInterval(heartInterval);
+    }
+
+    // YES click
+    yesBtn.addEventListener("click", () => {
+        loveStarted = true;
+
+        message.innerHTML = "YAYYY!!! 🎉💖<br>Thank you so much!! 😍❤️<br>btw, 'Penguins are creatures that remain with their chosen life partners for the rest of their lives.🙂'";
+
+        // Show message before adding animation class
+        message.style.display = "block";
+        setTimeout(() => {
+            message.classList.add("show"); // triggers smooth fade/slide
+        }, 50);
+
+        music.play();
+        startLoveEffects();
+
+        // Hide NO button completely
+        noBtn.style.display = "none";
+    });
+
+    // Auto pause/resume when leaving/returning tab
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            music.pause();
+            stopLoveEffects();
+        } else if (loveStarted) {
+            music.play();
+            startLoveEffects();
+        }
+    });
+
+    // Screenshot
+    document.getElementById("screenshotBtn").addEventListener("click", () => {
+        html2canvas(document.body).then(canvas => {
+            const link = document.createElement("a");
+            link.download = "love.png";
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    });
+</script>
+
+</body>
+</html>    const message = document.getElementById("message");
     const music = document.getElementById("bgMusic");
 
     let animationRunning = false;
